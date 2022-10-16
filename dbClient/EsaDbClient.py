@@ -1,14 +1,16 @@
+from typing import Generator
+
 import psycopg2
 
-from dbClient.dto.BodyTypeDto import BodyTypeDto
-from dbClient.dto.BrandDto import BrandDto
 from dbClient.dto.CarDto import CarDto
 from dbClient.dto.CarVariableDto import CarVariableDto
+from dbClient.dto.JobDto import JobDto
 
-DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-POSTGRE_DATETIME_FORMAT = 'yyyy-mm-dd hh24:mi:ss'
 
 class EsaDbClient:
+
+    DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+    POSTGRE_DATETIME_FORMAT = 'yyyy-mm-dd hh24:mi:ss'
 
     def __init__(self,
                  user: str = "postgres",
@@ -22,40 +24,18 @@ class EsaDbClient:
                                      port=port,
                                      database=database)
         self.conn.autocommit = True
-        self.brands: dict[str, BrandDto] = {}
-        self.body_types: dict[str, BodyTypeDto] = dict()
         print("Connection established")
-
-    # def commit(self):
-    #     self.conn.commit()
-    #     print("Changes committed")
-    #
-    # def rollback(self):
-    #     self.conn.rollback()
-    #     print("Changes rollback")
 
     def get_cursor(self):
         return self.conn.cursor()
 
-    def insert_car(self, car: CarDto):
+    def insert_car(self, car: CarDto) -> int:
         formatted_tags: str = "{" + ",".join([f"\"{tag}\"" for tag in car.tags]) + "}"
         insert_query = f"""
-            INSERT INTO public.car( 
-                                    image, 
-                                    esa_id, 
-                                    brand, 
-                                    full_name, 
-                                    engine, 
-                                    equipment_class, 
-                                    year, 
-                                    gear, 
-                                    power, 
-                                    fuel, 
-                                    body_type, 
-                                    mileage, 
-                                    tags,
-                                    datetime_captured)
+            INSERT INTO public.car(image, url, esa_id, brand, full_name, engine, equipment_class, year, gear, power, 
+                                    fuel, body_type, mileage, tags, datetime_captured, job_id)
         VALUES ({self.__get_value_or_null(car.image, True)}, 
+                {self.__get_value_or_null(car.url, True)}, 
                 {self.__get_value_or_null(car.esa_id, True)}, 
                 {self.__get_value_or_null(car.brand, True)}, 
                 {self.__get_value_or_null(car.full_name, True)}, 
@@ -68,16 +48,16 @@ class EsaDbClient:
                 {self.__get_value_or_null(car.body_type, True)}, 
                 {self.__get_value_or_null(car.mileage)}, 
                 {self.__get_value_or_null(formatted_tags, True)},
-                (to_timestamp('{car.datetime_captured.strftime(DATETIME_FORMAT)}', '{POSTGRE_DATETIME_FORMAT}'))) 
+                (to_timestamp('{car.datetime_captured.strftime(self.DATETIME_FORMAT)}', '{self.POSTGRE_DATETIME_FORMAT}')),
+                {self.__get_value_or_null(car.job_id)})
         RETURNING car_id;
         """
 
         with self.get_cursor() as cur:
             cur.execute(insert_query)
-            print("Insert car executed")
             return cur.fetchone()[0]
 
-    def insert_car_variable(self, car_variable: CarVariableDto):
+    def insert_car_variable(self, car_variable: CarVariableDto) -> int:
         insert_query = f"""
             INSERT INTO public.car_variable(
                                     car_id, 
@@ -88,7 +68,8 @@ class EsaDbClient:
                                     condition, 
                                     price, 
                                     discount, 
-                                    datetime_captured)
+                                    datetime_captured,
+                                    job_id)
         VALUES ({self.__get_value_or_null(car_variable.car_id)}, 
                 {self.__get_value_or_null(car_variable.lowcost)}, 
                 {self.__get_value_or_null(car_variable.premium)}, 
@@ -97,7 +78,8 @@ class EsaDbClient:
                 {self.__get_value_or_null(car_variable.condition)}, 
                 {self.__get_value_or_null(car_variable.price)}, 
                 {self.__get_value_or_null(car_variable.discount)}, 
-                (to_timestamp('{car_variable.datetime_captured.strftime(DATETIME_FORMAT)}', '{POSTGRE_DATETIME_FORMAT}'))) 
+                (to_timestamp('{car_variable.datetime_captured.strftime(self.DATETIME_FORMAT)}', '{self.POSTGRE_DATETIME_FORMAT}')),
+                {self.__get_value_or_null(car_variable.job_id)}) 
         RETURNING car_variable_id;
         """
 
@@ -106,23 +88,41 @@ class EsaDbClient:
             print("Car Variable inserted")
             return cur.fetchone()[0]
 
-    # def __get_brands(self):
-    #     if len(self.brands) == 0:
-    #         with self.get_cursor() as cur:
-    #             cur.execute("SELECT brand_id, brand_name FROM public.brand")
-    #             for record in cur:
-    #                 self.brands[record[1]] = BrandDto(record[0], record[1])
-    #             print(f"Brands retrieved [{len(self.brands)}]")
-    #     return self.brands
-    #
-    # def __get_body_types(self):
-    #     if len(self.body_types) == 0:
-    #         with self.get_cursor() as cur:
-    #             cur.execute("SELECT body_type_id, body_type_name FROM public.body_type")
-    #             for record in cur:
-    #                 self.body_types[record[1]] = BodyTypeDto(record[0], record[1])
-    #             print(f"Brands retrieved [{len(self.body_types)}]")
-    #     return self.body_types
+    def get_cars(self) -> Generator[CarDto, CarDto, None]:
+        with self.get_cursor() as cur:
+            cur.execute("""SELECT car_id, url, image, esa_id, brand, full_name, engine, equipment_class,
+                                year, gear, power, fuel, body_type, mileage, tags, datetime_captured, job_id
+                           from public.car""")
+            for record in cur:
+                yield CarDto(*record)
+
+    def insert_job(self, job_dto: JobDto):
+        insert_query = f"""
+                INSERT INTO public.job(job_name, datetime_start, detail)
+                VALUES ({self.__get_value_or_null(job_dto.job_name, True)}, 
+                        (to_timestamp('{job_dto.datetime_start.strftime(self.DATETIME_FORMAT)}', '{self.POSTGRE_DATETIME_FORMAT}')),
+                        {self.__get_value_or_null(job_dto.detail, True)}) 
+                RETURNING job_id;
+                """
+
+        with self.get_cursor() as cur:
+            cur.execute(insert_query)
+            print("Job created")
+            return cur.fetchone()[0]
+
+    def update_job(self, job_dto: JobDto):
+        update_query = f"""
+                UPDATE public.job
+                SET job_name={self.__get_value_or_null(job_dto.job_name, True)}, 
+                    datetime_start=to_timestamp('{job_dto.datetime_start.strftime(self.DATETIME_FORMAT)}', '{self.POSTGRE_DATETIME_FORMAT}'), 
+                    datetime_end=to_timestamp('{job_dto.datetime_end.strftime(self.DATETIME_FORMAT)}', '{self.POSTGRE_DATETIME_FORMAT}'), 
+                    detail={self.__get_value_or_null(job_dto.detail, True)}
+                WHERE job_id={job_dto.job_id}
+                """
+
+        with self.get_cursor() as cur:
+            cur.execute(update_query)
+            print(f"Job [{job_dto.job_id}] updated")
 
     @staticmethod
     def __get_value_or_null(value, add_quotes: bool = False):

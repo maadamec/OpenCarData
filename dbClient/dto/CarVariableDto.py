@@ -16,3 +16,4 @@ class CarVariableDto:
     price: int
     discount: int
     datetime_captured: datetime
+    job_id: Optional[int]

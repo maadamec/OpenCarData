@@ -54,6 +54,8 @@ def extract_from_list_page(page: BeautifulSoup) -> list[EsaCar]:
 
 def extract_car_from_page(page: BeautifulSoup) -> EsaCar:
 
+    url = esa_id = brand = equipment_class = image = full_name = monthly_price = special_price = price = discount = None
+
     if (url_el := page.find("meta", property="og:url")) is not None:
         url = url_el.attrs["content"].replace("https://www.autoesa.cz", "")
         esa_id = re.search(".*/.+/.+/.+/.+/(.+)", url).group(1)
@@ -82,7 +84,9 @@ def extract_car_from_page(page: BeautifulSoup) -> EsaCar:
     # Price in cash and discount
     if (price_el := page.find("div", class_="car_detail2__bottomline").find(string="Cena v hotovosti")) is not None:
         price = __clear_integer(__clear_text(price_el.parent.find_next_sibling("strong").get_text(strip=True, separator=' ')))
-        discount = __clear_integer(__clear_text(price_el.parent.find_next_sibling("span", class_="text-color-blue").get_text(strip=True, separator=' ')))
+
+        if (discount_el := price_el.parent.find_next_sibling("span", class_="text-color-blue")) is not None:
+            discount = __clear_integer(__clear_text(discount_el.get_text(strip=True, separator=' ')))
 
     lowcost = page.find('img', class_="lowcost-icon") is not None
     premium = page.find('img', class_="premium-icon") is not None
@@ -110,7 +114,8 @@ def extract_car_from_page(page: BeautifulSoup) -> EsaCar:
     wheel_drive = __extract_detail_box_element(detail_box, "Pohon")
     stk = __extract_detail_box_element(detail_box, "STK")
 
-    return EsaCar(url, image, esa_id, brand, full_name, engine, equipment_class, year, gear, power, fuel, car_body, mileage, lowcost, premium, monthly_price, special_price, [] ,condition, price, discount, datetime.now())
+    return EsaCar(url, image, esa_id, brand, full_name, engine, equipment_class, year, gear, power, fuel, car_body,
+                  mileage, lowcost, premium, monthly_price, special_price, [], condition, price, discount, datetime.now())
 
 def __extract_detail_box_element(detail_box: BeautifulSoup, label: str) -> Optional[str]:
     if (el := detail_box.find(string=label)) is not None:
