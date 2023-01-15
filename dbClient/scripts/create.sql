@@ -1,3 +1,14 @@
+
+DROP TABLE IF EXISTS public.job CASCADE;
+CREATE TABLE IF NOT EXISTS public.job
+(
+    job_id SERIAL PRIMARY KEY,
+    job_name text NOT NULL,
+    datetime_start timestamp NOT NULL,
+    datetime_end timestamp,
+    detail text
+);
+
 DROP TABLE IF EXISTS public.car CASCADE;
 CREATE TABLE IF NOT EXISTS public."car"
 (
@@ -17,6 +28,7 @@ CREATE TABLE IF NOT EXISTS public."car"
     mileage integer NOT NULL,
     tags text[],
     datetime_captured timestamp NOT NULL,
+    datetime_sold timestamp,
     job_id integer,
 
 
@@ -47,14 +59,4 @@ CREATE TABLE IF NOT EXISTS public."car_variable"
     CONSTRAINT fk_job
         FOREIGN KEY(job_id)
             REFERENCES job(job_id)
-);
-
-DROP TABLE IF EXISTS public.job CASCADE;
-CREATE TABLE IF NOT EXISTS public.job
-(
-    job_id SERIAL PRIMARY KEY,
-    job_name text NOT NULL,
-    datetime_start timestamp NOT NULL,
-    datetime_end timestamp,
-    detail text
 );

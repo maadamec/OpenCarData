@@ -22,4 +22,5 @@ class CarDto:
     mileage: int
     tags: list[str]
     datetime_captured: datetime
+    datetime_sold: Optional[datetime]
     job_id: Optional[int]

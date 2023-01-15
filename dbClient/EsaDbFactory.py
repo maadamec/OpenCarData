@@ -9,7 +9,7 @@ def esa_car_to_dtos(esa_car: EsaCar) -> Tuple[CarDto, CarVariableDto]:
                              full_name=esa_car.full_name, engine=esa_car.engine,equipment_class= esa_car.equipment_class,
                              year=esa_car.year, gear=esa_car.gear, power=esa_car.power, fuel=esa_car.fuel,
                              body_type=esa_car.body_type, mileage=esa_car.mileage, tags=esa_car.tags,
-                             datetime_captured= esa_car.datetime_captured, job_id=None)
+                             datetime_captured= esa_car.datetime_captured, datetime_sold=esa_car.datetime_sold, job_id=None)
 
     car_variable_dto: CarVariableDto = CarVariableDto(car_variable_id=None, car_id=None, lowcost=esa_car.lowcost, premium=esa_car.premium,
                                                       monthly_price=esa_car.monthly_price, special_price=esa_car.special_price,

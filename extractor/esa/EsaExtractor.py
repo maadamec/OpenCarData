@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from model.EsaCar import EsaCar
 from typing import Optional
 from datetime import datetime
-
+from common.CustomException import CarSoldOutException
 
 def extract_from_list_page(page: BeautifulSoup) -> list[EsaCar]:
     result: list[EsaCar] = []
@@ -48,13 +48,16 @@ def extract_from_list_page(page: BeautifulSoup) -> list[EsaCar]:
             discount_text = re.search("Zlevněno o\s*([\s0-9]+)\s*Kč", re.sub("\s+", " ", discount_el.get_text(strip=True, separator=' ')))
             discount = 0 if discount_text is None else int(discount_text.group(1).replace(" ", "").strip())
         result.append(EsaCar(url, image_url, esa_id, brand, full_name, engine, equipment_class, year, gear, power, fuel, body,
-                             mileage, lowcost, premium, monthly_price, special_price, tags, condition, price, discount, datetime.now()))
+                             mileage, lowcost, premium, monthly_price, special_price, tags, condition, price, discount, datetime.now(), None))
     return result
 
 
 def extract_car_from_page(page: BeautifulSoup) -> EsaCar:
 
     url = esa_id = brand = equipment_class = image = full_name = monthly_price = special_price = price = discount = None
+
+    if page.find("div", class_="car-not-found") is not None:
+        raise CarSoldOutException()
 
     if (url_el := page.find("meta", property="og:url")) is not None:
         url = url_el.attrs["content"].replace("https://www.autoesa.cz", "")
@@ -115,7 +118,7 @@ def extract_car_from_page(page: BeautifulSoup) -> EsaCar:
     stk = __extract_detail_box_element(detail_box, "STK")
 
     return EsaCar(url, image, esa_id, brand, full_name, engine, equipment_class, year, gear, power, fuel, car_body,
-                  mileage, lowcost, premium, monthly_price, special_price, [], condition, price, discount, datetime.now())
+                  mileage, lowcost, premium, monthly_price, special_price, [], condition, price, discount, datetime.now(), None)
 
 def __extract_detail_box_element(detail_box: BeautifulSoup, label: str) -> Optional[str]:
     if (el := detail_box.find(string=label)) is not None:

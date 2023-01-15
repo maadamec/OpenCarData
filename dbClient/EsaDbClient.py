@@ -1,3 +1,4 @@
+import datetime
 from typing import Generator
 
 import psycopg2
@@ -31,9 +32,11 @@ class EsaDbClient:
 
     def insert_car(self, car: CarDto) -> int:
         formatted_tags: str = "{" + ",".join([f"\"{tag}\"" for tag in car.tags]) + "}"
+        formatted_datetime_sold: str = f"(to_timestamp('{car.datetime_sold.strftime(self.DATETIME_FORMAT)}', '{self.POSTGRE_DATETIME_FORMAT}'))" if car.datetime_sold is not None else "null"
+
         insert_query = f"""
             INSERT INTO public.car(image, url, esa_id, brand, full_name, engine, equipment_class, year, gear, power, 
-                                    fuel, body_type, mileage, tags, datetime_captured, job_id)
+                                    fuel, body_type, mileage, tags, datetime_captured, datetime_sold, job_id)
         VALUES ({self.__get_value_or_null(car.image, True)}, 
                 {self.__get_value_or_null(car.url, True)}, 
                 {self.__get_value_or_null(car.esa_id, True)}, 
@@ -49,6 +52,7 @@ class EsaDbClient:
                 {self.__get_value_or_null(car.mileage)}, 
                 {self.__get_value_or_null(formatted_tags, True)},
                 (to_timestamp('{car.datetime_captured.strftime(self.DATETIME_FORMAT)}', '{self.POSTGRE_DATETIME_FORMAT}')),
+                {formatted_datetime_sold},
                 {self.__get_value_or_null(car.job_id)})
         RETURNING car_id;
         """
@@ -56,6 +60,15 @@ class EsaDbClient:
         with self.get_cursor() as cur:
             cur.execute(insert_query)
             return cur.fetchone()[0]
+
+    def update_car_datetime_sold(self, car_id: int, datetime_sold: datetime.datetime):
+        insert_query = f"""
+                    UPDATE public.car
+                    SET datetime_sold=(to_timestamp('{datetime_sold.strftime(self.DATETIME_FORMAT)}', '{self.POSTGRE_DATETIME_FORMAT}'))
+                    WHERE car_id={car_id};
+                """
+        with self.get_cursor() as cur:
+            cur.execute(insert_query)
 
     def insert_car_variable(self, car_variable: CarVariableDto) -> int:
         insert_query = f"""
@@ -85,14 +98,14 @@ class EsaDbClient:
 
         with self.get_cursor() as cur:
             cur.execute(insert_query)
-            print("Car Variable inserted")
             return cur.fetchone()[0]
 
-    def get_cars(self) -> Generator[CarDto, CarDto, None]:
+    def get_cars_to_crawl(self) -> Generator[CarDto, CarDto, None]:
         with self.get_cursor() as cur:
             cur.execute("""SELECT car_id, url, image, esa_id, brand, full_name, engine, equipment_class,
-                                year, gear, power, fuel, body_type, mileage, tags, datetime_captured, job_id
-                           from public.car""")
+                                year, gear, power, fuel, body_type, mileage, tags, datetime_captured, datetime_sold, job_id
+                           from public.car
+                           WHERE datetime_sold is null""")
             for record in cur:
                 yield CarDto(*record)
 

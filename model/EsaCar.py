@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
+
 """Class to store information from the EsaCar website"""
 
 @dataclass
@@ -26,3 +28,4 @@ class EsaCar:
     price: int
     discount: int
     datetime_captured: datetime
+    datetime_sold: Optional[datetime]

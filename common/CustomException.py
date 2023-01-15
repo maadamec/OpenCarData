@@ -1,0 +1,3 @@
+
+class CarSoldOutException(Exception):
+    pass
