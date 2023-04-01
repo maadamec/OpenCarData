@@ -14,7 +14,7 @@ from extractor.esa.EsaExtractor import extract_from_list_page, extract_car_from_
 
 
 def crawl_esa_pages():
-    pattern: str = "https://www.autoesa.cz/vsechna-auta?stranka={page}"
+    pattern: str = "https://www.autoesa.cz/vsechna-auta?zobrazeni=2&stranka={page}"
     page_i: int = 1
     cars: list[EsaCar] = []
 
@@ -36,7 +36,8 @@ def crawl_esa_pages():
             newly_extracted_cars: list[EsaCar] = extract_from_list_page(page_bs)
             cars.extend(newly_extracted_cars)
         except Exception as e:
-            print(f"ERROR: Issue during extraction. Page: {pattern.replace('{page}', str(page_i))}. Exception: ", e.with_traceback(None))
+            print(f"ERROR: Issue during extraction. Page: {pattern.replace('{page}', str(page_i))}. Exception: ",
+                  e.with_traceback(None))
             continue
         for car in newly_extracted_cars:
             car_dto, _ = esa_car_to_dtos(car)
@@ -48,10 +49,10 @@ def crawl_esa_pages():
             except Exception as e:
                 print(f"ERROR: Issue during insertion to database. {car_dto}. Exception: ", e)
 
-
     job_dto.datetime_end = datetime.datetime.now()
     client.update_job(job_dto)
     client.conn.close()
+
 
 def crawl_known_esa_cars():
     client = EsaDbClient(user="madamec", password="madamec")
