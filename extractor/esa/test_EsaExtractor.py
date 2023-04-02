@@ -1,8 +1,10 @@
+import re
+import unittest
 from unittest import TestCase
 from bs4 import BeautifulSoup
 from extractor.esa.EsaExtractor import extract_from_list_page, extract_car_from_page
 from model.EsaCar import EsaCar
-
+import requests as requests
 
 class Test(TestCase):
     def test_extract_from_page(self):
@@ -102,3 +104,36 @@ class Test(TestCase):
 
                 except Exception as e:
                     self.fail()
+
+    @unittest.skip
+    def test_extract_car_from_existing_page(self):
+        url = "/mercedes-benz/slk/kabriolet/benzin/266273523"
+        page_html: str = requests.get(f"https://www.autoesa.cz{url}").text
+        page: BeautifulSoup = BeautifulSoup(page_html, 'html.parser')
+        try:
+            first_car: EsaCar = extract_car_from_page(page)
+            self.assertIsNotNone(first_car)
+            self.assertRegex(first_car.esa_id, re.compile('^\d+$'))
+            self.assertRegex(first_car.url, re.compile('^/\w+.+/\w+/\w+/\w+/\d+$'))
+            self.assertTrue(first_car.image is None or re.match(re.compile('^(/\w+/\w+/\w+/\w+.+jpg)$'), first_car.image))
+            self.assertRegex(first_car.brand, re.compile('^\w+.+$'))
+            self.assertRegex(first_car.full_name, re.compile('^\w+.+$'))
+            self.assertRegex(first_car.engine, re.compile('^\w+.+$'))
+            self.assertRegex(first_car.equipment_class, re.compile('^\w+$'))
+            self.assertTrue(isinstance(first_car.year, int))
+            self.assertRegex(first_car.gear, re.compile('^\w+$'))
+            self.assertTrue(isinstance(first_car.power, int))
+            self.assertRegex(first_car.fuel, re.compile('^\w+$'))
+            self.assertRegex(first_car.body_type, re.compile('^\w+$'))
+            self.assertTrue(isinstance(first_car.mileage, int))
+            self.assertTrue(isinstance(first_car.lowcost, bool))
+            self.assertTrue(isinstance(first_car.premium, bool))
+            self.assertTrue(isinstance(first_car.monthly_price, int))
+            self.assertTrue(isinstance(first_car.special_price, int))
+            self.assertTrue(isinstance(first_car.condition, float))
+            self.assertTrue(0 <= first_car.condition <= 10)
+            self.assertTrue(isinstance(first_car.price, int))
+            self.assertTrue(isinstance(first_car.discount, int) or first_car.discount is None)
+
+        except Exception as e:
+            self.fail(e)

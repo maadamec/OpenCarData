@@ -1,5 +1,5 @@
 import datetime
-from typing import Generator
+from typing import Generator, Optional
 
 import psycopg2
 
@@ -108,6 +108,14 @@ class EsaDbClient:
                            WHERE datetime_sold is null""")
             for record in cur:
                 yield CarDto(*record)
+
+    def get_count_of_cars_to_crawl(self) -> Optional[float]:
+        with self.get_cursor() as cur:
+            cur.execute("""SELECT count(car_id)
+                           from public.car
+                           WHERE datetime_sold is null""")
+            record = cur.fetchone()
+            return record[0]
 
     def insert_job(self, job_dto: JobDto):
         insert_query = f"""
