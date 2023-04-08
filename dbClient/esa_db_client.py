@@ -1,14 +1,18 @@
+""" Clint for executing sql queries and inserting and updating records in Postgre DB """
+from __future__ import annotations
+
 import datetime
-from typing import Generator, Optional
+from collections.abc import Generator
 
 import psycopg2
 
-from dbClient.dto.CarDto import CarDto
-from dbClient.dto.CarVariableDto import CarVariableDto
-from dbClient.dto.JobDto import JobDto
+from dbClient.dto.car_dto import CarDto
+from dbClient.dto.car_variable_dto import CarVariableDto
+from dbClient.dto.job_dto import JobDto
 
 
 class EsaDbClient:
+    """ Class for working with the database """
 
     DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
     POSTGRE_DATETIME_FORMAT = 'yyyy-mm-dd hh24:mi:ss'
@@ -109,7 +113,7 @@ class EsaDbClient:
             for record in cur:
                 yield CarDto(*record)
 
-    def get_count_of_cars_to_crawl(self) -> Optional[float]:
+    def get_count_of_cars_to_crawl(self) -> (float, None):
         with self.get_cursor() as cur:
             cur.execute("""SELECT count(car_id)
                            from public.car
@@ -149,5 +153,4 @@ class EsaDbClient:
     def __get_value_or_null(value, add_quotes: bool = False):
         if value is not None:
             return f"'{value}'" if add_quotes else value
-        else:
-            return "null"
+        return "null"

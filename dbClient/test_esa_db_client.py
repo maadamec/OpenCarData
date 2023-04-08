@@ -1,10 +1,9 @@
 from unittest import TestCase
-
-from dbClient.EsaDbClient import EsaDbClient
-from dbClient.dto.CarDto import CarDto
-from dbClient.dto.CarVariableDto import CarVariableDto
 from datetime import datetime
-import sys
+from dbClient.esa_db_client import EsaDbClient
+from dbClient.dto.car_dto import CarDto
+from dbClient.dto.car_variable_dto import CarVariableDto
+
 
 class Test(TestCase):
     @classmethod
@@ -48,7 +47,8 @@ class Test(TestCase):
         job_id = 1
 
         datetime_captured = datetime.now()
-        variable = CarVariableDto(car_variable_id=None, car_id=car_id, lowcost=lowcost, premium=premium, monthly_price=monthly_price,
+        variable = CarVariableDto(car_variable_id=None, car_id=car_id, lowcost=lowcost, premium=premium,
+                                  monthly_price=monthly_price,
                                   special_price=special_price, condition=condition, price=price, discount=discount,
                                   datetime_captured=datetime_captured, job_id=job_id)
         variable_id = self.client.insert_car_variable(variable)

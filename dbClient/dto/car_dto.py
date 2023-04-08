@@ -1,12 +1,14 @@
+"""Class to store information from the EsaCar website"""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
-"""Class to store information from the EsaCar website"""
 
 @dataclass
 class CarDto:
-    car_id: Optional[int]
+    """ Class representing one car from AUTO ESA without variable attributes """
+    car_id: (int | None)
     url: str
     image: str
     esa_id: str
@@ -22,5 +24,5 @@ class CarDto:
     mileage: int
     tags: list[str]
     datetime_captured: datetime
-    datetime_sold: Optional[datetime]
-    job_id: Optional[int]
+    datetime_sold: (datetime | None)
+    job_id: (int | None)

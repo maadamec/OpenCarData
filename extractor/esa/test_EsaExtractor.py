@@ -2,9 +2,9 @@ import re
 import unittest
 from unittest import TestCase
 from bs4 import BeautifulSoup
-from extractor.esa.EsaExtractor import extract_from_list_page, extract_car_from_page
-from model.EsaCar import EsaCar
-import requests as requests
+import requests
+from extractor.esa.esa_extractor import extract_from_list_page, extract_car_from_page
+from model.esa_car import EsaCar
 
 class Test(TestCase):
     def test_extract_from_page(self):
@@ -41,7 +41,7 @@ class Test(TestCase):
                 self.assertFalse(result[3].premium)
                 self.assertFalse(result[3].lowcost)
 
-            except Exception as e:
+            except (Exception,):
                 self.fail()
 
     def test_extract_car_from_page(self):
@@ -72,7 +72,7 @@ class Test(TestCase):
                 self.assertEqual(565000, first_car.price)
                 self.assertEqual(35000, first_car.discount)
 
-            except Exception as e:
+            except (Exception,):
                 self.fail()
 
             with open("../../testData/testcar2.html", encoding="utf-8") as fp:
@@ -102,29 +102,29 @@ class Test(TestCase):
                     self.assertEqual(100000, first_car.price)
                     self.assertEqual(15000, first_car.discount)
 
-                except Exception as e:
+                except (Exception,):
                     self.fail()
 
     @unittest.skip
     def test_extract_car_from_existing_page(self):
         url = "/mercedes-benz/slk/kabriolet/benzin/266273523"
-        page_html: str = requests.get(f"https://www.autoesa.cz{url}").text
+        page_html: str = requests.get(f"https://www.autoesa.cz{url}", timeout=30).text
         page: BeautifulSoup = BeautifulSoup(page_html, 'html.parser')
         try:
             first_car: EsaCar = extract_car_from_page(page)
             self.assertIsNotNone(first_car)
-            self.assertRegex(first_car.esa_id, re.compile('^\d+$'))
-            self.assertRegex(first_car.url, re.compile('^/\w+.+/\w+/\w+/\w+/\d+$'))
-            self.assertTrue(first_car.image is None or re.match(re.compile('^(/\w+/\w+/\w+/\w+.+jpg)$'), first_car.image))
-            self.assertRegex(first_car.brand, re.compile('^\w+.+$'))
-            self.assertRegex(first_car.full_name, re.compile('^\w+.+$'))
-            self.assertRegex(first_car.engine, re.compile('^\w+.+$'))
-            self.assertRegex(first_car.equipment_class, re.compile('^\w+$'))
+            self.assertRegex(first_car.esa_id, re.compile(r'^\d+$'))
+            self.assertRegex(first_car.url, re.compile(r'^/\w+.+/\w+/\w+/\w+/\d+$'))
+            self.assertTrue(first_car.image is None or re.match(re.compile(r'^(/\w+/\w+/\w+/\w+.+jpg)$'), first_car.image))
+            self.assertRegex(first_car.brand, re.compile(r'^\w+.+$'))
+            self.assertRegex(first_car.full_name, re.compile(r'^\w+.+$'))
+            self.assertRegex(first_car.engine, re.compile(r'^\w+.+$'))
+            self.assertRegex(first_car.equipment_class, re.compile(r'^\w+$'))
             self.assertTrue(isinstance(first_car.year, int))
-            self.assertRegex(first_car.gear, re.compile('^\w+$'))
+            self.assertRegex(first_car.gear, re.compile(r'^\w+$'))
             self.assertTrue(isinstance(first_car.power, int))
-            self.assertRegex(first_car.fuel, re.compile('^\w+$'))
-            self.assertRegex(first_car.body_type, re.compile('^\w+$'))
+            self.assertRegex(first_car.fuel, re.compile(r'^\w+$'))
+            self.assertRegex(first_car.body_type, re.compile(r'^\w+$'))
             self.assertTrue(isinstance(first_car.mileage, int))
             self.assertTrue(isinstance(first_car.lowcost, bool))
             self.assertTrue(isinstance(first_car.premium, bool))
@@ -135,5 +135,5 @@ class Test(TestCase):
             self.assertTrue(isinstance(first_car.price, int))
             self.assertTrue(isinstance(first_car.discount, int) or first_car.discount is None)
 
-        except Exception as e:
+        except (Exception,) as e:
             self.fail(e)

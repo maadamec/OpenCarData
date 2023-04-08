@@ -1,13 +1,15 @@
+"""Class to store information about variable information about the car"""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
-"""Class to store information about variable information about the car"""
 
 @dataclass
 class CarVariableDto:
-    car_variable_id: Optional[int]
-    car_id: Optional[int]
+    """ Class to represent variable attributes of cat from AUTO ESA"""
+    car_variable_id: (int | None)
+    car_id: (int | None)
     lowcost: bool
     premium: bool
     monthly_price: int
@@ -16,4 +18,4 @@ class CarVariableDto:
     price: int
     discount: int
     datetime_captured: datetime
-    job_id: Optional[int]
+    job_id: (int | None)
