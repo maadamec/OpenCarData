@@ -2,15 +2,17 @@ from __future__ import annotations
 
 import datetime
 import re
+import uuid
 from datetime import datetime
+
 from bs4 import BeautifulSoup, Tag
 from common.decorators import save_attribute_extraction
 from common.custom_exceptions import CarSoldOutException, AttributeExtractionError
-from model.esa_car import EsaCar
+from model.entities import EsaCar, EsaCarVariable
 
 
-def extract_from_list_page(page: BeautifulSoup) -> list[EsaCar]:
-    result: list[EsaCar] = []
+def extract_from_list_page(page: BeautifulSoup) -> list[tuple[EsaCar, EsaCarVariable]]:
+    result: list[tuple[EsaCar, EsaCarVariable]] = []
     for car in page.find_all("a", class_="car_item"):
         url = car['href']
         image_url = __extract_image_url(car)
@@ -34,10 +36,42 @@ def extract_from_list_page(page: BeautifulSoup) -> list[EsaCar]:
         price = 0
         discount = __extract_discount(car)
 
+        car_id = uuid.uuid4()
         result.append(
-            EsaCar(url, image_url, esa_id, brand, full_name, engine, equipment_class, year, gear, power, fuel, body,
-                   mileage, lowcost, premium, monthly_price, special_price, tags, condition, price, discount,
-                   datetime.now(), None))
+            (EsaCar(
+                car_id=car_id,
+                url=url,
+                image=image_url,
+                esa_id=esa_id,
+                brand=brand,
+                full_name=full_name,
+                engine=engine,
+                equipment_class=equipment_class,
+                year=year,
+                gear=gear,
+                power=power,
+                fuel=fuel,
+                body_type=body,
+                mileage=mileage,
+                datetime_captured=datetime.now(),
+                datetime_sold=None,
+                job_id=None
+            ),
+             EsaCarVariable(
+                 car_variable_id=uuid.uuid4(),
+                 car_id=car_id,
+                 lowcost=lowcost,
+                 premium=premium,
+                 monthly_price=monthly_price,
+                 special_price=special_price,
+                 condition=condition,
+                 price=price,
+                 discount=discount,
+                 datetime_captured=datetime.now(),
+                 job_id=None
+             )
+            )
+        )
     return result
 
 
@@ -158,7 +192,7 @@ def __extract_discount(car: Tag):
     return discount
 
 
-def extract_car_from_page(page: BeautifulSoup) -> EsaCar:
+def extract_car_from_page(page: BeautifulSoup) -> tuple[EsaCar, EsaCarVariable]:
     __check_single_if_sold(page)
 
     url, esa_id, brand, equipment_class = __extract_single_url_data(page)
@@ -186,9 +220,41 @@ def extract_car_from_page(page: BeautifulSoup) -> EsaCar:
     mileage = __clear_integer(__extract_single_detail_box_element(detail_box, "Stav tachometru"))
     car_body = __extract_single_detail_box_element(detail_box, "Karosérie")
 
-    return EsaCar(url, image, esa_id, brand, full_name, engine, equipment_class, year, gear, power, fuel, car_body,
-                  mileage, lowcost, premium, monthly_price, special_price, [], condition, price, discount,
-                  datetime.now(), None)
+    car_id = uuid.uuid4()
+    return (
+        EsaCar(
+            car_id=car_id,
+            url=url,
+            image=image,
+            esa_id=esa_id,
+            brand=brand,
+            full_name=full_name,
+            engine=engine,
+            equipment_class=equipment_class,
+            year=year,
+            gear=gear,
+            power=power,
+            fuel=fuel,
+            body_type=car_body,
+            mileage=mileage,
+            datetime_captured=datetime.now(),
+            datetime_sold=None,
+            job_id=None
+        ),
+        EsaCarVariable(
+            car_variable_id=uuid.uuid4(),
+            car_id=car_id,
+            lowcost=lowcost,
+            premium=premium,
+            monthly_price=monthly_price,
+            special_price=special_price,
+            condition=condition,
+            price=price,
+            discount=discount,
+            datetime_captured=datetime.now(),
+            job_id=None
+        )
+    )
 
 
 def __check_single_if_sold(page: BeautifulSoup):

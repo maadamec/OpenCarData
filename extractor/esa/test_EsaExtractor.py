@@ -4,7 +4,7 @@ from unittest import TestCase
 from bs4 import BeautifulSoup
 import requests
 from extractor.esa.esa_extractor import extract_from_list_page, extract_car_from_page
-from model.esa_car import EsaCar
+from model.entities import EsaCar
 
 class Test(TestCase):
     def test_extract_from_page(self):

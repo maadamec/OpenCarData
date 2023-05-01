@@ -8,6 +8,7 @@ Run the docker with following command
 
       docker run -itd -e POSTGRES_USER=madamec -e POSTGRES_PASSWORD=madamec -p 5432:5432 -v "C:\Users\Nasťa\Desktop\projects\CarIntelligence\db_data:/var/lib/postgresql/data" --name postgresql postgres
 
+      docker run -itd -e POSTGRES_USER=madamec -e POSTGRES_PASSWORD=madamec -p 5432:5432 -v "C:\Users\Nasťa\IdeaProjects\db_data:/var/lib/postgresql/data" --name postgresql postgres
 
 ## Car information
 

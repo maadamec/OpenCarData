@@ -1,8 +1,8 @@
 from unittest import TestCase
 from datetime import datetime
 from dbClient.esa_db_client import EsaDbClient
-from dbClient.dto.car_dto import CarDto
-from dbClient.dto.car_variable_dto import CarVariableDto
+from dbClient.model import CarModel
+from dbClient.model import CarVariableModel
 
 
 class Test(TestCase):
@@ -25,8 +25,8 @@ class Test(TestCase):
         self.client = EsaDbClient("madamec", "madamec", "localhost", "5432", "test")
 
     def test_insert_car(self):
-        car = CarDto(None, "url", "image", "esa_id", "skoda", "full_name", "engine", "equipment_class",
-                     2022, "gear", 77, "fuel", "kombi", 80000, ["test", "tag"], datetime.now(), None, 1)
+        car = CarModel(None, "url", "image", "esa_id", "skoda", "full_name", "engine", "equipment_class",
+                       2022, "gear", 77, "fuel", "kombi", 80000, ["test", "tag"], datetime.now(), None, 1)
 
         car_id = self.client.insert_car(car)
         self.assertIsNotNone(car_id)
@@ -47,17 +47,17 @@ class Test(TestCase):
         job_id = 1
 
         datetime_captured = datetime.now()
-        variable = CarVariableDto(car_variable_id=None, car_id=car_id, lowcost=lowcost, premium=premium,
-                                  monthly_price=monthly_price,
-                                  special_price=special_price, condition=condition, price=price, discount=discount,
-                                  datetime_captured=datetime_captured, job_id=job_id)
+        variable = CarVariableModel(car_variable_id=None, car_id=car_id, lowcost=lowcost, premium=premium,
+                                    monthly_price=monthly_price,
+                                    special_price=special_price, condition=condition, price=price, discount=discount,
+                                    datetime_captured=datetime_captured, job_id=job_id)
         variable_id = self.client.insert_car_variable(variable)
 
         with self.client.get_cursor() as cur:
             cur.execute(f"""SELECT car_variable_id, car_id, lowcost, premium, monthly_price, special_price, condition, price, discount, 
                            datetime_captured, job_id FROM public.car_variable WHERE car_variable_id = {variable_id};""")
             new_variable = cur.fetchone()
-            new_variable_dto = CarVariableDto(*new_variable)
+            new_variable_dto = CarVariableModel(*new_variable)
             self.assertIsNotNone(new_variable_dto)
             self.assertEqual(variable_id, new_variable_dto.car_variable_id)
         self.assertIsNotNone(variable_id)

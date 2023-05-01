@@ -3,11 +3,12 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-
+from uuid import UUID
 
 @dataclass
 class EsaCar:
     """ Class representing one car from Auto ESA with variable properties """
+    car_id: UUID
     url: str
     image: str
     esa_id: str
@@ -21,13 +22,29 @@ class EsaCar:
     fuel: str
     body_type: str
     mileage: int
+    datetime_captured: datetime
+    datetime_sold: (datetime | None)
+    job_id: (UUID | None)
+
+@dataclass
+class EsaCarVariable:
+    car_variable_id: UUID
+    car_id: UUID
     lowcost: bool
     premium: bool
     monthly_price: int
     special_price: int
-    tags: list[str]
     condition: float
     price: int
     discount: int
     datetime_captured: datetime
-    datetime_sold: (datetime | None)
+    job_id: (UUID | None)
+
+@dataclass
+class Job:
+    """ Class to represent job run """
+    job_id: int
+    job_name: str
+    datetime_start: datetime
+    datetime_end: (datetime | None)
+    detail: str

@@ -6,9 +6,9 @@ from collections.abc import Generator
 
 import psycopg2
 
-from dbClient.dto.car_dto import CarDto
-from dbClient.dto.car_variable_dto import CarVariableDto
-from dbClient.dto.job_dto import JobDto
+from dbClient.model import CarModel
+from dbClient.model import CarVariableModel
+from dbClient.model import JobModel
 
 
 class EsaDbClient:
@@ -34,7 +34,7 @@ class EsaDbClient:
     def get_cursor(self):
         return self.conn.cursor()
 
-    def insert_car(self, car: CarDto) -> int:
+    def insert_car(self, car: CarModel) -> int:
         formatted_tags: str = "{" + ",".join([f"\"{tag}\"" for tag in car.tags]) + "}"
         formatted_datetime_sold: str = f"(to_timestamp('{car.datetime_sold.strftime(self.DATETIME_FORMAT)}', '{self.POSTGRE_DATETIME_FORMAT}'))" if car.datetime_sold is not None else "null"
 
@@ -74,7 +74,7 @@ class EsaDbClient:
         with self.get_cursor() as cur:
             cur.execute(insert_query)
 
-    def insert_car_variable(self, car_variable: CarVariableDto) -> int:
+    def insert_car_variable(self, car_variable: CarVariableModel) -> int:
         insert_query = f"""
             INSERT INTO public.car_variable(
                                     car_id, 
@@ -104,14 +104,14 @@ class EsaDbClient:
             cur.execute(insert_query)
             return cur.fetchone()[0]
 
-    def get_cars_to_crawl(self) -> Generator[CarDto, CarDto, None]:
+    def get_cars_to_crawl(self) -> Generator[CarModel, CarModel, None]:
         with self.get_cursor() as cur:
             cur.execute("""SELECT car_id, url, image, esa_id, brand, full_name, engine, equipment_class,
                                 year, gear, power, fuel, body_type, mileage, tags, datetime_captured, datetime_sold, job_id
                            from public.car
                            WHERE datetime_sold is null""")
             for record in cur:
-                yield CarDto(*record)
+                yield CarModel(*record)
 
     def get_count_of_cars_to_crawl(self) -> (float, None):
         with self.get_cursor() as cur:
@@ -121,7 +121,7 @@ class EsaDbClient:
             record = cur.fetchone()
             return record[0]
 
-    def insert_job(self, job_dto: JobDto):
+    def insert_job(self, job_dto: JobModel):
         insert_query = f"""
                 INSERT INTO public.job(job_name, datetime_start, detail)
                 VALUES ({self.__get_value_or_null(job_dto.job_name, True)}, 
@@ -135,7 +135,7 @@ class EsaDbClient:
             print("Job created")
             return cur.fetchone()[0]
 
-    def update_job(self, job_dto: JobDto):
+    def update_job(self, job_dto: JobModel):
         update_query = f"""
                 UPDATE public.job
                 SET job_name={self.__get_value_or_null(job_dto.job_name, True)}, 
