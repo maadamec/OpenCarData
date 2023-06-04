@@ -17,6 +17,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+or on windows:
+
+```shell
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+```
+
 Prepare the PostgreSQL database. If you don't have one prepared, you can easily create one with docker
 
 ```bash
@@ -26,7 +34,7 @@ docker run -itd -e POSTGRES_USER=username -e POSTGRES_PASSWORD=password -p 5432:
 Set the database connection string in the app.py file, so the application can publish data there:
 
 ```python
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://<username>:<password>>@<host>:<port>/<dbname>'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://<username>:<password>@<host>:<port>/<dbname>'
 ```
 
 Run the main.py file
