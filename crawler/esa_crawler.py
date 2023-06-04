@@ -9,10 +9,9 @@ from tqdm import tqdm
 import requests
 from bs4 import BeautifulSoup
 from common.custom_exceptions import CarSoldOutException
-from dbClient.model import CarModel
-from dbClient.model import JobModel
-from extractor.esa.esa_extractor import extract_from_list_page, extract_car_from_page
+from dbClient.model import CarModel, JobModel
 from dbClient.db_mapper import car_entity_to_model, car_variable_entity_to_model
+from extractor.esa.esa_extractor import extract_from_list_page, extract_car_from_page
 from app import app
 from app import db
 from model.entities import EsaCar, EsaCarVariable
@@ -69,7 +68,7 @@ def crawl_known_esa_cars():
         db.session().expire_on_commit = False
 
         with mp.Pool(mp.cpu_count()) as pool:
-            query = db.session.query(CarModel).filter(CarModel.datetime_sold is None)
+            query = db.session.query(CarModel).filter_by(datetime_sold=None)
             num_of_cars_to_crawl = query.count()
             num_of_sold = 0
             num_of_error = 0
@@ -82,7 +81,6 @@ def crawl_known_esa_cars():
                         CarModel.query.filter_by(car_id=car_dto.car_id).update(
                             dict(datetime_sold=datetime.datetime.now()))
                         db.session.commit()
-                        print(f"INFO:  Car sold, {car_dto.esa_id}")
                     except IntegrityError as e:
                         print(f"ERROR: Issue during update to database. {car_dto.esa_id}, rollback ", e)
                         db.session.rollback()
@@ -109,7 +107,7 @@ def crawl_known_esa_cars():
                         db.session.rollback()
 
         JobModel.query.filter_by(job_id=job_dto.job_id).update(
-            dict(datetime_end=datetime.datetime.now()))
+            {"datetime_end": datetime.datetime.now()})
         db.session.commit()
 
         db.session().expire_on_commit = True
@@ -117,6 +115,7 @@ def crawl_known_esa_cars():
         print(f"Number of cars crawled: {num_of_cars_to_crawl}")
         print(f"Number of sold cars: {num_of_sold}")
         print(f"Number of errors: {num_of_error}")
+
 
 def __extract_single_car(car_dto: CarModel) -> tuple[
     CarModel, (EsaCar, None), (EsaCarVariable, None), (str, None)]:
