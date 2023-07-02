@@ -8,9 +8,11 @@ from sqlalchemy.exc import IntegrityError
 from tqdm import tqdm
 import requests
 from bs4 import BeautifulSoup
+
+from common.constants import URL_PATTERN_ESA, RESELLER_NAME_AUTO_ESA
 from common.custom_exceptions import CarSoldOutException
 from dbClient.model import CarModel, JobModel
-from dbClient.db_mapper import car_entity_to_model, car_variable_entity_to_model
+from dbClient.esa_db_mapper import car_entity_to_model, car_variable_entity_to_model
 from extractor.esa.esa_extractor import extract_from_list_page, extract_car_from_page
 from app import app
 from app import db
@@ -21,7 +23,7 @@ def crawl_esa_pages():
     """ Function that will start crawl pages with multiple cars and save them into the database """
     with app.app_context():
         print("Starting to crawl esa pages")
-        pattern: str = "https://www.autoesa.cz/vsechna-auta?zobrazeni=2&stranka={page}"
+        pattern: str = URL_PATTERN_ESA
         page_i: int = 1
 
         page_html: str = requests.get(pattern.replace("{page}", str(page_i)), timeout=30).text
@@ -31,8 +33,13 @@ def crawl_esa_pages():
                                                                         string=re.compile(r"\.\.\."))
         last_page_i = int(re.sub(r"\D+", "", pagination_last.text))
 
-        job_dto = JobModel(job_id=uuid.uuid4(), job_name="Crawl Auto Esa Pages", datetime_start=datetime.datetime.now(),
-                           datetime_end=None, detail="")
+        job_dto = JobModel(
+            job_id=uuid.uuid4(),
+            job_name="Crawl Auto Esa Pages",
+            datetime_start=datetime.datetime.now(),
+            datetime_end=None,
+            detail=""
+        )
         db.session.add(job_dto)
         db.session.commit()
 
@@ -61,14 +68,20 @@ def crawl_known_esa_cars():
     with app.app_context():
         print("Starting to crawl esa cars")
 
-        job_dto = JobModel(job_id=uuid.uuid4(), job_name="Crawl Auto Esa Single Cars Pages", datetime_start=datetime.datetime.now(), datetime_end=None, detail="")
+        job_dto = JobModel(
+            job_id=uuid.uuid4(),
+            job_name="Crawl Auto Esa Single Cars Pages",
+            datetime_start=datetime.datetime.now(),
+            datetime_end=None,
+            detail=""
+        )
         db.session.add(job_dto)
         db.session.commit()
 
         db.session().expire_on_commit = False
 
         with mp.Pool(mp.cpu_count()) as pool:
-            query = db.session.query(CarModel).filter_by(datetime_sold=None)
+            query = db.session.query(CarModel).filter_by(datetime_sold=None, reseller=RESELLER_NAME_AUTO_ESA)
             num_of_cars_to_crawl = query.count()
             num_of_sold = 0
             num_of_error = 0
@@ -82,11 +95,11 @@ def crawl_known_esa_cars():
                             dict(datetime_sold=datetime.datetime.now()))
                         db.session.commit()
                     except IntegrityError as e:
-                        print(f"ERROR: Issue during update to database. {car_dto.esa_id}, rollback ", e)
+                        print(f"ERROR: Issue during update to database. {car_dto.reseller_id}, rollback ", e)
                         db.session.rollback()
                     except (Exception,) as e:
                         num_of_error += 1
-                        print(f"ERROR: Issue during update to database. {car_dto.esa_id}. Exception: ", e)
+                        print(f"ERROR: Issue during update to database. {car_dto.reseller_id}. Exception: ", e)
                         db.session.rollback()
                 elif status == "ERROR" or car_variable is None:
                     num_of_error += 1
@@ -134,7 +147,7 @@ def __extract_single_car(car_dto: CarModel) -> tuple[
 
 def __extract_cars_from_page(page_i) -> list[tuple[EsaCar, EsaCarVariable]]:
     """ Function to extract list of CarDto from multi car page """
-    pattern: str = "https://www.autoesa.cz/vsechna-auta?zobrazeni=2&stranka={page}"
+    pattern: str = URL_PATTERN_ESA
     try:
         page_html: str = requests.get(pattern.replace("{page}", str(page_i)), timeout=30).text
         page_bs: BeautifulSoup = BeautifulSoup(page_html, 'html.parser')

@@ -2,7 +2,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, ARRAY, DateTime, ForeignKey, UUID, Boolean, Float
+from sqlalchemy import Integer, String, ARRAY, DateTime, ForeignKey, UUID, Boolean
 
 db = SQLAlchemy()
 
@@ -27,7 +27,8 @@ class CarModel(db.Model):
     car_id = db.Column(UUID(as_uuid=True), primary_key=True)
     url = db.Column(String)
     image = db.Column(String)
-    esa_id = db.Column(String, unique=True)
+    reseller = db.Column(String)
+    reseller_id = db.Column(String, unique=True)
     brand = db.Column(String)
     full_name = db.Column(String)
     engine = db.Column(String)
@@ -42,6 +43,26 @@ class CarModel(db.Model):
     datetime_captured = db.Column(DateTime)
     datetime_sold = db.Column(DateTime)
     job_id = db.Column(UUID(as_uuid=True), ForeignKey("job.job_id"))
+
+    def __str__(self):
+        return f"[CarModel] car_id: '{self.car_id}'," \
+               f"url: '{self.url}'," \
+               f"image: '{self.image}'," \
+               f"esa_id: '{self.reseller_id}'," \
+               f"brand: '{self.brand}'," \
+               f"full_name: '{self.full_name}'," \
+               f"engine: '{self.engine}'," \
+               f"equipment_class: '{self.equipment_class}'," \
+               f"year: '{self.year}'," \
+               f"gear: '{self.gear}'," \
+               f"power: '{self.power}'," \
+               f"fuel: '{self.fuel}'," \
+               f"body_type: '{self.body_type}'," \
+               f"mileage: '{self.mileage}'," \
+               f"tags: '{self.tags}'," \
+               f"datetime_captured: '{self.datetime_captured}'," \
+               f"datetime_sold: '{self.datetime_sold}'," \
+               f"job_id: '{self.job_id}'"
 
 
 @dataclass

@@ -17,7 +17,7 @@ def save_attribute_extraction(element):
                 return func(*args, **kwargs)
             except Exception as exception:
                 raise AttributeExtractionError(
-                    f"Issue during extraction of {element} element, {exception.with_traceback(None)}") from exception
+                    f"Issue during extraction of {element} element, {exception.with_traceback(None)}, args: {args}, {kwargs}") from exception
 
         return wrapper
 

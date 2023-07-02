@@ -1,9 +1,10 @@
 """ Function to transform model to entity and other way around """
-
+from common.constants import RESELLER_NAME_AAA_AUTO
 from dbClient.model import CarModel
 from dbClient.model import CarVariableModel
 from dbClient.model import JobModel
-from model.entities import Job, EsaCar, EsaCarVariable
+from model.aaa_entities import AaaCar, AaaCarVariable
+from model.entities import Job
 
 
 def job_model_to_entity(instance: JobModel) -> Job:
@@ -25,12 +26,12 @@ def job_entity_to_model(instance: Job) -> JobModel:
     )
 
 
-def car_model_to_entity(instance: CarModel) -> EsaCar:
-    return EsaCar(
+def car_model_to_entity(instance: CarModel) -> AaaCar:
+    return AaaCar(
         car_id=instance.car_id,
         url=instance.url,
         image=instance.image,
-        esa_id=instance.esa_id,
+        aaa_id=instance.reseller_id,
         brand=instance.brand,
         full_name=instance.full_name,
         engine=instance.engine,
@@ -46,12 +47,13 @@ def car_model_to_entity(instance: CarModel) -> EsaCar:
         job_id=instance.job_id,
     )
 
-def car_entity_to_model(instance: EsaCar) -> CarModel:
+def car_entity_to_model(instance: AaaCar) -> CarModel:
     return CarModel(
         car_id=instance.car_id,
         url=instance.url,
         image=instance.image,
-        esa_id=instance.esa_id,
+        reseller=RESELLER_NAME_AAA_AUTO,
+        reseller_id=instance.aaa_id,
         brand=instance.brand,
         full_name=instance.full_name,
         engine=instance.engine,
@@ -68,30 +70,27 @@ def car_entity_to_model(instance: EsaCar) -> CarModel:
     )
 
 
-def car_variable_model_to_entity(instance: CarVariableModel) -> EsaCarVariable:
-    return EsaCarVariable(
+def car_variable_model_to_entity(instance: CarVariableModel) -> AaaCarVariable:
+    return AaaCarVariable(
         car_variable_id=instance.car_variable_id,
         car_id=instance.car_id,
-        lowcost=instance.lowcost,
-        premium=instance.premium,
         monthly_price=instance.monthly_price,
         special_price=instance.special_price,
-        condition=instance.condition,
         price=instance.price,
         discount=instance.discount,
         datetime_captured=instance.datetime_captured,
         job_id=instance.job_id,
     )
 
-def car_variable_entity_to_model(instance: EsaCarVariable) -> CarVariableModel:
+def car_variable_entity_to_model(instance: AaaCarVariable) -> CarVariableModel:
     return CarVariableModel(
         car_variable_id=instance.car_variable_id,
         car_id=instance.car_id,
-        lowcost=instance.lowcost,
-        premium=instance.premium,
+        lowcost=False,
+        premium=False,
         monthly_price=instance.monthly_price,
         special_price=instance.special_price,
-        condition=instance.condition,
+        condition=0,
         price=instance.price,
         discount=instance.discount,
         datetime_captured=instance.datetime_captured,
