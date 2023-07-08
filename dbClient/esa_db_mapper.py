@@ -3,7 +3,8 @@ from common.constants import RESELLER_NAME_AUTO_ESA
 from dbClient.model import CarModel
 from dbClient.model import CarVariableModel
 from dbClient.model import JobModel
-from model.entities import Job, EsaCar, EsaCarVariable
+from model.esa_entities import EsaCar, EsaCarVariable
+from model.common_entities import Job
 
 
 def job_model_to_entity(instance: JobModel) -> Job:

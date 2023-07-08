@@ -4,7 +4,7 @@ from dbClient.model import CarModel
 from dbClient.model import CarVariableModel
 from dbClient.model import JobModel
 from model.aaa_entities import AaaCar, AaaCarVariable
-from model.entities import Job
+from model.common_entities import Job
 
 
 def job_model_to_entity(instance: JobModel) -> Job:

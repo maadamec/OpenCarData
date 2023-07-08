@@ -16,7 +16,7 @@ from dbClient.esa_db_mapper import car_entity_to_model, car_variable_entity_to_m
 from extractor.esa.esa_extractor import extract_from_list_page, extract_car_from_page
 from app import app
 from app import db
-from model.entities import EsaCar, EsaCarVariable
+from model.esa_entities import EsaCar, EsaCarVariable
 
 
 def crawl_esa_pages():

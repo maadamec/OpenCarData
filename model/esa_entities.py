@@ -41,13 +41,3 @@ class EsaCarVariable:
     discount: int
     datetime_captured: datetime
     job_id: (UUID | None)
-
-
-@dataclass
-class Job:
-    """ Class to represent job run """
-    job_id: int
-    job_name: str
-    datetime_start: datetime
-    datetime_end: (datetime | None)
-    detail: str

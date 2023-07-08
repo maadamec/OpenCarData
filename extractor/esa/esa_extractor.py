@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup, Tag
 from common.decorators import save_attribute_extraction
 from common.custom_exceptions import CarSoldOutException, AttributeExtractionError
 from common.utils import clear_integer, clear_text
-from model.entities import EsaCar, EsaCarVariable
+from model.esa_entities import EsaCar, EsaCarVariable
 
 
 def extract_from_list_page(page: BeautifulSoup) -> list[tuple[EsaCar, EsaCarVariable]]:
