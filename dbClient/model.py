@@ -81,3 +81,16 @@ class CarVariableModel(db.Model):
     discount = db.Column(Integer)
     datetime_captured = db.Column(DateTime)
     job_id = db.Column(UUID(as_uuid=True), ForeignKey("job.job_id"))
+
+    def __str__(self):
+        return f"[CarVariableModel] car_variable_id: '{self.car_variable_id}'," \
+               f"car_id: '{self.car_id}'," \
+               f"lowcost: '{self.lowcost}'," \
+               f"premium: '{self.premium}'," \
+               f"monthly_price: '{self.monthly_price}'," \
+               f"special_price: '{self.special_price}'," \
+               f"condition: '{self.condition}'," \
+               f"price: '{self.price}'," \
+               f"discount: '{self.discount}'," \
+               f"datetime_captured: '{self.datetime_captured}'," \
+               f"job_id: '{self.job_id}'"

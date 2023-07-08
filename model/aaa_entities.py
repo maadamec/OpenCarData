@@ -32,7 +32,6 @@ class AaaCarVariable:
     car_id: UUID
     monthly_price: int
     special_price: int
-    condition: float
     price: int
     discount: int
     datetime_captured: datetime

@@ -8,6 +8,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup, Tag
 from common.decorators import save_attribute_extraction
 from common.custom_exceptions import CarSoldOutException, AttributeExtractionError
+from common.utils import clear_integer, clear_text
 from model.entities import EsaCar, EsaCarVariable
 
 
@@ -31,7 +32,6 @@ def extract_from_list_page(page: BeautifulSoup) -> list[tuple[EsaCar, EsaCarVari
         premium = __extract_premium(car)
         monthly_price = __extract_monthly_price(car)
         special_price = __extract_special_price(car)
-        tags = __extract_tags(car)
         condition = __extract_condition(car)
         price = 0
         discount = __extract_discount(car)
@@ -107,7 +107,7 @@ def __extract_equipment_class(url: str):
 
 @save_attribute_extraction(element="year")
 def __extract_year(car: Tag):
-    return __clear_integer(car.find('div', class_="icon_year").get_text(strip=True, separator=' '))
+    return clear_integer(car.find('div', class_="icon_year").get_text(strip=True, separator=' '))
 
 
 @save_attribute_extraction(element="gear")
@@ -117,7 +117,7 @@ def __extract_gear(url: str):
 
 @save_attribute_extraction(element="power")
 def __extract_power(car: Tag):
-    return __clear_integer(__clear_text(
+    return clear_integer(clear_text(
         car.find('div', class_="icon_power").get_text(strip=True, separator=' ').replace(" kW", "")))
 
 
@@ -133,8 +133,8 @@ def __extract_body(url: str):
 
 @save_attribute_extraction(element="mileage")
 def __extract_mileage(car: Tag):
-    return __clear_integer(
-        __clear_text(car.find('div', class_="icon_range").get_text(strip=True, separator=' ').replace(" km", "")))
+    return clear_integer(
+        clear_text(car.find('div', class_="icon_range").get_text(strip=True, separator=' ').replace(" km", "")))
 
 
 @save_attribute_extraction(element="lowcost")
@@ -153,8 +153,8 @@ def __extract_monthly_price(car: Tag):
     if (monthly_price_el := car.find('div', class_="car_item__price_holder").find('div',
                                                                                   "car_item__price_block")) is not None:
         monthly_price_text = re.search(r"Měsíčně od\s*([\s0-9]+)\s*Kč",
-                                       __clear_text(monthly_price_el.get_text(strip=True, separator=' ')))
-        monthly_price = 0 if monthly_price_text is None else __clear_integer(
+                                       clear_text(monthly_price_el.get_text(strip=True, separator=' ')))
+        monthly_price = 0 if monthly_price_text is None else clear_integer(
             monthly_price_text.group(1).replace(" ", "").strip())
     return monthly_price
 
@@ -165,7 +165,7 @@ def __extract_special_price(car: Tag):
     if (special_price_el := car.find('div', class_="car_item__price_holder").find('div',
                                                                                   "car_item__price_block text-red")) is not None:
         special_price_text = re.search(r"Akční cena\s*([\s0-9]+)\s*Kč",
-                                       __clear_text(special_price_el.get_text(strip=True, separator=' ')))
+                                       clear_text(special_price_el.get_text(strip=True, separator=' ')))
         special_price = 0 if special_price_text is None else int(
             special_price_text.group(1).replace(" ", "").strip())
     return special_price
@@ -211,13 +211,13 @@ def extract_car_from_page(page: BeautifulSoup) -> tuple[EsaCar, EsaCarVariable]:
 
     # Detail box
     detail_box = page.find('div', class_="detail_attr_inner")
-    year = __clear_integer(__extract_single_detail_box_element(detail_box, "Rok"))
+    year = clear_integer(__extract_single_detail_box_element(detail_box, "Rok"))
     gear = __extract_single_detail_box_element(detail_box, "Převodovka")
     engine = __extract_single_detail_box_element(detail_box, "Motor")
-    power = __clear_integer(__extract_single_detail_box_element(detail_box, "Výkon"))
+    power = clear_integer(__extract_single_detail_box_element(detail_box, "Výkon"))
 
     fuel = __extract_single_detail_box_element(detail_box, "Palivo")
-    mileage = __clear_integer(__extract_single_detail_box_element(detail_box, "Stav tachometru"))
+    mileage = clear_integer(__extract_single_detail_box_element(detail_box, "Stav tachometru"))
     car_body = __extract_single_detail_box_element(detail_box, "Karosérie")
 
     car_id = uuid.uuid4()
@@ -265,7 +265,7 @@ def __check_single_if_sold(page: BeautifulSoup):
 @save_attribute_extraction(element="url data")
 def __extract_single_url_data(page: BeautifulSoup):
     if (url_el := page.find("meta", property="og:url")) is not None:
-        url = url_el.attrs["content"].replace("https://www.autoesa.cz", "")
+        url = url_el.attrs["content"].replace("http", "").replace("https", "").replace("://www.autoesa.cz", "")
         esa_id = __extract_esa_id(url)
         brand = __extract_brand(url)
         equipment_class = __extract_equipment_class(url)
@@ -283,33 +283,33 @@ def __extract_single_image_url(page: BeautifulSoup):
 @save_attribute_extraction(element="full name")
 def __extract_single_full_name(page: BeautifulSoup):
     full_name_el = page.find('div', class_="car_detail2__h1")
-    return __clear_text(full_name_el.text)
+    return clear_text(full_name_el.text)
 
 
 @save_attribute_extraction(element="monthly price")
 def __extract_single_monthly_price(page: BeautifulSoup):
     monthly_price_el = page.find("div", class_="car_detail2__topline").find(string="Měsíčně od")
-    return __clear_integer(
-        __clear_text(monthly_price_el.parent.find_next_sibling("strong").get_text(strip=True, separator=' ')))
+    return clear_integer(
+        clear_text(monthly_price_el.parent.find_next_sibling("strong").get_text(strip=True, separator=' ')))
 
 
 @save_attribute_extraction(element="special price")
 def __extract_single_special_price(page: BeautifulSoup):
     action_price_el = page.find("div", class_="car_detail2__topline").find(string="Akční cena na úvěr")
-    return __clear_integer(__clear_text(
+    return clear_integer(clear_text(
         action_price_el.parent.parent.find_next_sibling("span").get_text(strip=True, separator=' ')))
 
 
 @save_attribute_extraction(element="price")
 def __extract_single_price(page: BeautifulSoup):
     price_el = page.find("div", class_="car_detail2__topline").find(string="Cena v hotovosti")
-    return __clear_integer(__clear_text(price_el.parent.parent.find("strong").get_text(strip=True, separator=' ')))
+    return clear_integer(clear_text(price_el.parent.parent.find("strong").get_text(strip=True, separator=' ')))
 
 
 @save_attribute_extraction(element="discount")
 def __extract_single_discount(page: BeautifulSoup):
     if (discount_el := page.find("span", class_="car_item__save_text")) is not None:
-        return __clear_integer(__clear_text(discount_el.get_text(strip=True, separator=' ')))
+        return clear_integer(clear_text(discount_el.get_text(strip=True, separator=' ')))
     return None
 
 
@@ -317,9 +317,9 @@ def __extract_single_detail_box_element(detail_box: BeautifulSoup, label: str) -
     try:
         el = detail_box.find(string=label)
         if (el.parent.name != "strong"):
-            return __clear_text(
+            return clear_text(
                 el.find_parent("strong").find_next_sibling("span").get_text(strip=True, separator=' '))
-        return __clear_text(el.parent.find_next_sibling("span").get_text(strip=True, separator=' '))
+        return clear_text(el.parent.find_next_sibling("span").get_text(strip=True, separator=' '))
     except Exception as e:
         raise AttributeExtractionError(
             f"Issue during extraction detail box data looking for label: {label}, {e.with_traceback(None)}") from e
@@ -333,13 +333,13 @@ def __extract_single_condition(page: BeautifulSoup):
 
 def __extract_data_from_detail_box(page: BeautifulSoup):
     detail_box = page.find('div', class_="detail_attr_inner")
-    year = __clear_integer(__extract_single_detail_box_element(detail_box, "Rok"))
+    year = clear_integer(__extract_single_detail_box_element(detail_box, "Rok"))
     gear = __extract_single_detail_box_element(detail_box, "Převodovka")
     engine = __extract_single_detail_box_element(detail_box, "Motor")
-    power = __clear_integer(__extract_single_detail_box_element(detail_box, "Výkon"))
+    power = clear_integer(__extract_single_detail_box_element(detail_box, "Výkon"))
 
     fuel = __extract_single_detail_box_element(detail_box, "Palivo")
-    mileage = __clear_integer(__extract_single_detail_box_element(detail_box, "Stav tachometru"))
+    mileage = clear_integer(__extract_single_detail_box_element(detail_box, "Stav tachometru"))
     car_body = __extract_single_detail_box_element(detail_box, "Karosérie")
     return year, gear, engine, power, fuel, mileage, car_body
 
@@ -347,7 +347,7 @@ def __extract_data_from_detail_box(page: BeautifulSoup):
 @save_attribute_extraction(element="year")
 def __extract_single_year(page: BeautifulSoup):
     detail_box = page.find('div', class_="detail_attr_inner")
-    return __clear_integer(__extract_single_detail_box_element(detail_box, "Rok"))
+    return clear_integer(__extract_single_detail_box_element(detail_box, "Rok"))
 
 
 @save_attribute_extraction(element="gear")
@@ -365,7 +365,7 @@ def __extract_single_engine(page: BeautifulSoup):
 @save_attribute_extraction(element="power")
 def __extract_single_power(page: BeautifulSoup):
     detail_box = page.find('div', class_="detail_attr_inner")
-    return __clear_integer(__extract_single_detail_box_element(detail_box, "Výkon"))
+    return clear_integer(__extract_single_detail_box_element(detail_box, "Výkon"))
 
 
 @save_attribute_extraction(element="fuel")
@@ -377,18 +377,10 @@ def __extract_single_fuel(page: BeautifulSoup):
 @save_attribute_extraction(element="mileage")
 def __extract_single_mileage(page: BeautifulSoup):
     detail_box = page.find('div', class_="detail_attr_inner")
-    return __clear_integer(__extract_single_detail_box_element(detail_box, "Stav tachometru"))
+    return clear_integer(__extract_single_detail_box_element(detail_box, "Stav tachometru"))
 
 
 @save_attribute_extraction(element="car body")
 def __extract_single_car_body(page: BeautifulSoup):
     detail_box = page.find('div', class_="detail_attr_inner")
     return __extract_single_detail_box_element(detail_box, "Karosérie")
-
-
-def __clear_text(text: str) -> str:
-    return re.sub(r"\s+", " ", text).strip()
-
-
-def __clear_integer(text_with_number: str) -> int:
-    return int(re.sub(r"\D", "", text_with_number))
