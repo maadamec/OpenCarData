@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  # Container 1: PostgreSQL
+  postgres:
+    image: postgres:latest
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    networks:
+      - shared_network
+
+  # Container 2: Python Reseller Scrapper
+  python:
+    image: python:latest
+    env_file:
+      - .env
+    working_dir: /app
+    volumes:
+       - .:/app
+    depends_on:
+      - postgres
+    networks:
+      - shared_network
+    command: >
+      sh -c "
+      rm -rf venv &&
+      python -m venv venv &&
+      . venv/bin/activate &&
+      pip install --no-cache-dir -r requirements.txt &&
+      python main.py"
+networks:
+  shared_network:
+    name: shared_network

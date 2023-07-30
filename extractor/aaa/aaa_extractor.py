@@ -55,7 +55,7 @@ def extract_from_list_page(page: BeautifulSoup) -> list[AaaCar]:
 
 @save_attribute_extraction(element="car url")
 def __extract_car_url(car: Tag):
-    return car.find('a', class_="fullSizeLink")['href'].replace("https://www.aaaauto.cz")
+    return car.find('a', class_="fullSizeLink")['href'].replace("https://www.aaaauto.cz", "")
 
 
 @save_attribute_extraction(element="image url")

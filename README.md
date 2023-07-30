@@ -2,8 +2,36 @@
 
 OpenCarData is a Python project for crawling car resellers websites and scraping information about the prices and offered cars. The project is designed to be modular, so it can be easily extended to support new resellers and data sources.
 
-## Installation
+## Installation - docker
+Clone the repository:
+```bash
+git clone https://github.com/maadamec/OpenCarData.git
+cd opencardata
+```
+
+Run docker compose:
+```bash
+docker-compose up
+```
+
+If you want to change user name, password and other attributes, change them in [.env](.env) file
+
+## Installation - local development
 Clone the repository and install the dependencies manually:
+
+You will probably need to install postgresql to your system. On linux, you can do it with apt-get:
+
+```bash
+sudo apt-get install postgresql postgresql-contrib
+```
+
+or on Mac:
+
+```bash
+brew install postgresql
+```
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/maadamec/OpenCarData.git
@@ -16,6 +44,10 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+and then activate the virtual environment:
+
+```bash
 
 or on windows:
 
@@ -33,8 +65,18 @@ docker run -itd -e POSTGRES_USER=username -e POSTGRES_PASSWORD=password -p 5432:
 
 Set the database connection string in the app.py file, so the application can publish data there:
 
-```python
+```
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://<username>:<password>@<host>:<port>/<dbname>'
+```
+
+or set the environment variable:
+
+```bash
+export DATABASE_HOST=<host>
+export DATABASE_PORT=<port>
+export DATABASE_DB=<dbname>
+export DATABASE_USER=<username>
+export DATABASE_PASSWORD<password>
 ```
 
 Run the main.py file
