@@ -1,0 +1,70 @@
+Bus:
+  - bus
+  - Bus
+Cabriolet:
+  - cabriolet
+  - Cabriolet
+  - Cabrio
+  - kabriolet
+Van:
+  - chladici-mrazici
+  - Chladící/mrazící
+  - Skříňová dodávka
+  - van
+  - Van
+Combi:
+  - combi
+  - Combi
+  - kombi
+  - Kombi
+Coupe:
+  - coupe
+  - Coupe
+  - kupé
+  - kupe
+  - Kupé
+  - Kupe
+Hatchback:
+  - hatchback
+  - Hatchback
+Liftback:
+  - liftback
+  - Liftback
+Minibus:
+  - minibus
+  - Minibus
+Mpv:
+  - mpv
+  - Mpv
+  - uzitkove-vozidlo
+  - Užitkové vozidlo
+  - Uzitkovy vuz
+  - Užitkový vůz
+  - Uzitkove
+  - Odtahovka
+  - Platform
+  - Rodinné vozy
+  - valnik
+Off road:
+  - off-road
+  - Off-road
+  - off road
+  - Off road
+  - offroad
+  - Offroad
+  - terenni
+  - Terénní
+Pickup:
+  - pickup
+  - Pickup
+  - pick-up
+  - Pick-up
+Sedan:
+  - Sedan
+  - sedan
+SUV:
+  - suv
+  - Suv
+
+
+

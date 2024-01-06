@@ -15,10 +15,10 @@ class EsaCar:
     esa_id: str
     brand: str
     full_name: str
-    engine: str
+    engine: (str | None)
     equipment_class: str
     year: int
-    gear: str
+    gear: (str | None)
     power: int
     fuel: str
     body_type: str

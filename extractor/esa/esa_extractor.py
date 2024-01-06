@@ -19,11 +19,11 @@ def extract_from_list_page(page: BeautifulSoup) -> list[tuple[EsaCar, EsaCarVari
         image_url = __extract_image_url(car)
         esa_id = __extract_esa_id(url)
         brand = __extract_brand(url)
-        gear = __extract_gear(url)
+        # gear = __extract_gear(url)
         equipment_class = __extract_equipment_class(url)
         body = __extract_body(url)
         full_name = __extract_full_name(car)
-        engine = __extract_engine(car)
+        # engine = __extract_engine(car)
         year = __extract_year(car)
         power = __extract_power(car)
         fuel = __extract_fuel(car)
@@ -45,10 +45,10 @@ def extract_from_list_page(page: BeautifulSoup) -> list[tuple[EsaCar, EsaCarVari
                 esa_id=esa_id,
                 brand=brand,
                 full_name=full_name,
-                engine=engine,
+                engine=None,
                 equipment_class=equipment_class,
                 year=year,
-                gear=gear,
+                gear=None,
                 power=power,
                 fuel=fuel,
                 body_type=body,
@@ -95,9 +95,9 @@ def __extract_full_name(car: Tag):
     return car.find('span', class_="car-title").get_text(strip=True, separator=' ')
 
 
-@save_attribute_extraction(element="engine")
-def __extract_engine(car: Tag):
-    return car.find('div', class_="icon_power").get_text(strip=True, separator=' ').split("/")[0]
+# @save_attribute_extraction(element="engine")
+# def __extract_engine(car: Tag):
+#     return car.find('div', class_="icon_power").get_text(strip=True, separator=' ').split("/")[0]
 
 
 @save_attribute_extraction(element="equipment class")
@@ -110,9 +110,9 @@ def __extract_year(car: Tag):
     return clear_integer(car.find('div', class_="icon_year").get_text(strip=True, separator=' '))
 
 
-@save_attribute_extraction(element="gear")
-def __extract_gear(url: str):
-    return re.search("^/.+/.+/.+/(.+)/.+", url).group(1)
+# @save_attribute_extraction(element="gear")
+# def __extract_gear(url: str):
+#     return re.search("^/.+/.+/.+/(.+)/.+", url).group(1)
 
 
 @save_attribute_extraction(element="power")

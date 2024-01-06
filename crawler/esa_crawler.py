@@ -45,7 +45,7 @@ def crawl_esa_pages():
 
         with mp.Pool(mp.cpu_count()) as pool:
             for cars in tqdm(pool.imap_unordered(__extract_cars_from_page, range(1, last_page_i + 1)),
-                             total=last_page_i):
+                             total=last_page_i, mininterval=2):
                 for car, _ in cars:
                     car.job_id = job_dto.job_id
                     car_dto = car_entity_to_model(car)
@@ -85,8 +85,9 @@ def crawl_known_esa_cars():
             num_of_cars_to_crawl = query.count()
             num_of_sold = 0
             num_of_error = 0
-            for res in tqdm(pool.imap_unordered(__extract_single_car, query.all()), total=num_of_cars_to_crawl):
-                car_dto, _, car_variable, status = res
+            for res in tqdm(pool.imap_unordered(__extract_single_car, query.all()),
+                            total=num_of_cars_to_crawl, mininterval=2):
+                car_dto, esa_car, car_variable, status = res
 
                 if status == "SOLD":
                     num_of_sold += 1
@@ -105,6 +106,14 @@ def crawl_known_esa_cars():
                     num_of_error += 1
                     print(f"Skipping result for car {car_dto.car_id} due to status {status} or car is None")
                 else:
+                    # Fill missing values
+                    if car_dto.gear is None:
+                        updated_values = {
+                            "gear": esa_car.gear,
+                            "engine": esa_car.engine,
+                        }
+                        CarModel.query.filter_by(car_id=car_dto.car_id).update(updated_values)
+
                     car_variable_dto = car_variable_entity_to_model(car_variable)
                     car_variable_dto.car_id = car_dto.car_id
                     car_variable_dto.job_id = job_dto.job_id

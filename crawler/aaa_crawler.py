@@ -43,7 +43,7 @@ def crawl_aaa_pages():
 
         with mp.Pool(mp.cpu_count()) as pool:
             for cars in tqdm(pool.imap_unordered(__extract_cars_from_page, range(1, last_page_i + 1)),
-                             total=last_page_i):
+                             total=last_page_i, mininterval=2):
                 for car in cars:
                     car.job_id = job_dto.job_id
                     car_dto = car_entity_to_model(car)
@@ -83,7 +83,8 @@ def crawl_known_aaa_cars():
             num_of_cars_to_crawl = query.count()
             num_of_sold = 0
             num_of_error = 0
-            for res in tqdm(pool.imap_unordered(__extract_single_car, query.all()), total=num_of_cars_to_crawl):
+            for res in tqdm(pool.imap_unordered(__extract_single_car, query.all()),
+                            total=num_of_cars_to_crawl, mininterval=2):
                 car_dto, aaa_car, car_variable, status = res
 
                 if status == "SOLD":
@@ -104,6 +105,7 @@ def crawl_known_aaa_cars():
                     num_of_error += 1
                     print(f"Skipping result for car {car_dto.car_id} due to status {status} or car is None")
                 else:
+                    # Fill missing values
                     if car_dto.equipment_class is None:
                         updated_values = {
                             "equipment_class": aaa_car.equipment_class,

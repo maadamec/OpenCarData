@@ -1,0 +1,113 @@
+Elektro:
+  - elektro
+  - Elektro (BEV)
+  - Elektro (PHEV)
+  - Elektro (HEV)
+Petrol:
+  - Benzín
+  - benzín
+  - petrol
+  - Petrol
+Diesel:
+  - Diesel
+  - diesel
+  - nafta
+  - Nafta
+LPG:
+  - LPG
+  - lpg
+CNG:
+  - CNG
+  - cng
+Petrol (FHEV):
+  - Benzín + Full-Hybrid
+  - benzín + Full-Hybrid
+  - benzin + full-hybrid
+  - petrol + full-hybrid
+  - Benzín (FHEV)
+  - benzín (FHEV)
+  - benzin (FHEV)
+PETROL (MHEV):
+  - Benzín + Mild-Hybrid
+  - benzín + Mild-Hybrid
+  - benzin + mild-hybrid
+  - petrol + mild-hybrid
+  - Benzín (MHEV)
+  - benzín (MHEV)
+  - benzin (MHEV)
+PETROL (PHEV):
+  - Benzín + Plug-in Hybrid
+  - benzín + Plug-in Hybrid
+  - benzin + plug-in hybrid
+  - petrol + plug-in hybrid
+  - Benzín (PHEV)
+  - benzín (PHEV)
+  - benzin (PHEV)
+PETROL (HEV):
+  - Benzín + Hybrid
+  - benzín + Hybrid
+  - benzin + hybrid
+  - petrol + hybrid
+  - Benzín (HEV)
+  - benzín (HEV)
+  - benzin (HEV)
+Diesel (FHEV):
+  - Diesel + Full-Hybrid
+  - diesel + Full-Hybrid
+  - nafta + full-hybrid
+  - Diesel (FHEV)
+  - diesel (FHEV)
+  - nafta (FHEV)
+Diesel (MHEV):
+  - Diesel + Mild-Hybrid
+  - diesel + Mild-Hybrid
+  - nafta + mild-hybrid
+  - Diesel (MHEV)
+  - diesel (MHEV)
+  - nafta (MHEV)
+Diesel (PHEV):
+  - Diesel + Plug-in Hybrid
+  - diesel + Plug-in Hybrid
+  - nafta + plug-in hybrid
+  - Diesel (PHEV)
+  - diesel (PHEV)
+  - nafta (PHEV)
+Diesel (HEV):
+  - Diesel + Hybrid
+  - diesel + Hybrid
+  - nafta + hybrid
+  - Diesel (HEV)
+  - diesel (HEV)
+  - nafta (HEV)
+LPG (FHEV):
+  - LPG + Full-Hybrid
+  - lpg + Full-Hybrid
+  - LPG (FHEV)
+  - lpg (FHEV)
+LPG (MHEV):
+  - LPG + Mild-Hybrid
+  - lpg + Mild-Hybrid
+  - LPG (MHEV)
+  - lpg (MHEV)
+LPG (PHEV):
+  - LPG + Plug-in Hybrid
+  - lpg + Plug-in Hybrid
+  - LPG (PHEV)
+  - lpg (PHEV)
+LPG (HEV):
+  - LPG + Hybrid
+  - lpg + Hybrid
+  - LPG (HEV)
+  - lpg (HEV)
+Hybrid:
+  - hybridní
+  - Hybrid
+  - hybrid
+LPG + Petrol:
+  - LPG + benzín
+  - lpg + benzín
+CNG + Petrol:
+  - CNG + benzín
+  - cng + benzín
+  - CNG + petrol
+
