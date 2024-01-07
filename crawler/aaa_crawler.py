@@ -110,7 +110,8 @@ def crawl_known_aaa_cars():
                         updated_values = {
                             "equipment_class": aaa_car.equipment_class,
                             "brand": aaa_car.brand,
-                            "body_type": aaa_car.body_type
+                            "body_type": aaa_car.body_type,
+                            "gear": aaa_car.gear,
                         }
                         CarModel.query.filter_by(car_id=car_dto.car_id).update(updated_values)
 

@@ -109,15 +109,12 @@ def __extract_year(car: Tag):
 
 @save_attribute_extraction(element="gear")
 def __extract_gear(car: Tag):
-    tag_text = clear_text(
-        car.find('div', class_="carFeatures")
-        .find('ul', class_="carFeaturesList")
-        .find(lambda tag: " stupňů" in tag.text or "Automat" in tag.text)
-        .get_text(strip=True, separator=' ')
-    )
+    if (tag := car.find('div', class_="carFeatures")
+            .find('ul', class_="carFeaturesList")
+            .find(lambda features: " stupňů" in features.text or "Automat" in features.text)) is not None:
 
-    if "Automat" in tag_text:
-        return "automat"
+        if "Automat" in tag.get_text(strip=True, separator=' '):
+            return "automat"
     return "manual"
 
 
