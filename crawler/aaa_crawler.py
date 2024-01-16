@@ -86,7 +86,7 @@ def crawl_known_aaa_cars():
             for res in tqdm(pool.imap_unordered(__extract_single_car, query.all()),
                             total=num_of_cars_to_crawl, mininterval=2):
                 car_dto, aaa_car, car_variable, status = res
-
+                db.session.begin(nested=True)
                 if status == "SOLD":
                     num_of_sold += 1
                     try:
@@ -122,11 +122,12 @@ def crawl_known_aaa_cars():
                     try:
                         db.session.add(car_variable_dto)
                         db.session.commit()
-                    except IntegrityError:
+                    except IntegrityError as e:
+                        print(f"ERROR: Issue during insertion to database. car dto: {car_dto}, {car_variable_dto}. Exception: ", e)
                         db.session.rollback()
                     except (Exception,) as e:
                         num_of_error += 1
-                        print(f"ERROR: Issue during insertion to database. {car_variable_dto}. Exception: ", e)
+                        print(f"ERROR: Issue during insertion to database. car dto: {car_dto}, {car_variable_dto}. Exception: ", e)
                         db.session.rollback()
 
         JobModel.query.filter_by(job_id=job_dto.job_id).update(
@@ -134,6 +135,7 @@ def crawl_known_aaa_cars():
         db.session.commit()
 
         db.session().expire_on_commit = True
+        db.session.close()
 
         print(f"Number of cars crawled: {num_of_cars_to_crawl}")
         print(f"Number of sold cars: {num_of_sold}")
@@ -144,8 +146,7 @@ def __extract_single_car(car_dto: CarModel) -> tuple[
     CarModel, (AaaCar, None), (AaaCarVariable, None), (str, None)]:
     """ Function to extract CarDto from single car page """
     try:
-        page_html: str = requests.get(f"https://www.aaaauto.cz/cz/skoda-superb/car.html?id={car_dto.reseller_id}",
-                                      timeout=30).text
+        page_html: str = requests.get(f"https://www.aaaauto.cz{car_dto.url}", timeout=30).text
         page_bs: BeautifulSoup = BeautifulSoup(page_html, 'html.parser')
         new_car, new_car_variable = extract_car_from_page(page_bs)
         return car_dto, new_car, new_car_variable, None

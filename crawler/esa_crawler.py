@@ -88,7 +88,7 @@ def crawl_known_esa_cars():
             for res in tqdm(pool.imap_unordered(__extract_single_car, query.all()),
                             total=num_of_cars_to_crawl, mininterval=2):
                 car_dto, esa_car, car_variable, status = res
-
+                db.session.begin(nested=True)
                 if status == "SOLD":
                     num_of_sold += 1
                     try:
@@ -105,6 +105,7 @@ def crawl_known_esa_cars():
                 elif status == "ERROR" or car_variable is None:
                     num_of_error += 1
                     print(f"Skipping result for car {car_dto.car_id} due to status {status} or car is None")
+                    db.session.rollback()
                 else:
                     # Fill missing values
                     if car_dto.gear is None:

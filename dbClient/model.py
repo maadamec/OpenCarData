@@ -75,10 +75,10 @@ class CarVariableModel(db.Model):
     lowcost = db.Column(Boolean)
     premium = db.Column(Boolean)
     monthly_price = db.Column(Integer)
-    special_price = db.Column(Integer)
+    special_price = db.Column(Integer, nullable=True)
     condition = db.Column(Integer)
     price = db.Column(Integer)
-    discount = db.Column(Integer)
+    discount = db.Column(Integer, nullable=True)
     datetime_captured = db.Column(DateTime)
     job_id = db.Column(UUID(as_uuid=True), ForeignKey("job.job_id"))
 
