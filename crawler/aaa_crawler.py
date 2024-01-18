@@ -106,7 +106,7 @@ def crawl_known_aaa_cars():
                     print(f"Skipping result for car {car_dto.car_id} due to status {status} or car is None")
                 else:
                     # Fill missing values
-                    if car_dto.equipment_class is None:
+                    if car_dto.equipment_class is None or car_dto.equipment_class == 'TO_BE_SPECIFIED':
                         updated_values = {
                             "equipment_class": aaa_car.equipment_class,
                             "brand": aaa_car.brand,
